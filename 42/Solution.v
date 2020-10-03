@@ -9,5 +9,5 @@ Require Import Problem.
 Theorem solution: task.
 Proof.
 unfold task.
-by move=> A B; exact: fsym.
+by move=> A B f g E a; apply: esym.
 Qed.
