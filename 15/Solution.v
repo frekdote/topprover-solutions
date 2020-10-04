@@ -4,26 +4,21 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
-Require Import Sorting.Permutation.
 Require Import Problem.
+Require Import Sorting.Permutation.
 
-Lemma permutation_count (a : nat) s s' :
+Lemma Permutation_count (a : nat) s s' :
   Permutation s s' -> count_mem a s = count_mem a s'.
 Proof.
-  elim => //=.
-  - by move=> x t t' _ ->.
-  - move=> x y t.
-    rewrite !addnA. f_equal. apply addnC.
-  - by move=> s1 s2 s3 _ -> _ ->.
+elim: s s' / => //= [x s s' _ ? | x y s | s s' s'' _ + _].
+- by congr (_ + _).
+- by rewrite addnCA.
+- by apply: etrans.
 Qed.
 
 Theorem solution: task.
 Proof.
-  unfold task.
-  move=> a b s.
-  move/(permutation_count b).
-  case: (a =P b) => //= /eqP/negPf->.
-  Print n_Sn.
-  rewrite eq_refl add0n add1n.
-    by move/n_Sn.
+unfold task.
+move=> a b s /(Permutation_count b); rewrite /= eq_refl.
+by case: (a =P b) => //= _ /addIn.
 Qed.
