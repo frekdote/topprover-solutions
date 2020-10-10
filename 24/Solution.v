@@ -7,22 +7,17 @@ Unset Printing Implicit Defensive.
 Require Import Problem.
 Require Import ZArith Znumtheory Lia.
 
-Open Scope Z.
+Open Scope Z_scope.
 
 Theorem solution: task.
 Proof.
-  unfold task.
-  move=> p [Hp1 Hp2] a Ha k1 Hk1 k2 Hk2 H12.
-  move: (Zis_gcd_bezout _ _ _ (Hp2 a Ha)) => [u v Huv].
-  have: k1 mod p = k2 mod p.
-  { rewrite -(Z.mul_1_r k1) -(Z.mul_1_r k2).
-    rewrite -Huv.
-    rewrite !Z.mul_add_distr_l.
-    rewrite ![_ * (v * p)]Z.mul_assoc !Z.mod_add; try omega.
-    rewrite [u * a]Z.mul_comm.
-    rewrite !Z.mul_assoc.
-    rewrite ![(_ * _ * _) mod _]Z.mul_mod; try omega.
-    rewrite H12 //.
-  }
-  rewrite !Zmod_small //.
+unfold task.
+move=> p [Hp1 Hp2] a Ha k1 Hk1 k2 Hk2 Emul.
+have Hp1' : p <> 0 by lia.
+suff : k1 mod p = k2 mod p by rewrite !Z.mod_small.
+have [u v Euv] := Zis_gcd_bezout _ _ _ (Hp2 a Ha).
+have /(f_equal (fun x => k1 * x mod p)) := Euv.
+have /(f_equal (fun x => k2 * x mod p)) := Euv.
+rewrite !Z.mul_add_distr_l !Z.mul_assoc !Z.mod_add // ![_ * _ * a]Z.mul_shuffle0 ![(_ * _ * u) mod _]Z.mul_mod // !Z.mul_1_r Emul.
+by lia.
 Qed.
