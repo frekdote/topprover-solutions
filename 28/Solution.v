@@ -1,44 +1,25 @@
+Set Warnings "-notation-overridden".
+From mathcomp Require Import all_ssreflect.
+Set Implicit Arguments.
+Unset Strict Implicit.
+Unset Printing Implicit Defensive.
+
 Require Import Problem.
-Require Import Nat.
 
-Lemma lem : forall (f : nat -> nat) n m x,
-    iter (m + n) f x = iter m f (iter n f x).
-Proof.
-  intros f n m x.
-  induction m as [| m IHm]; auto.
-  simpl.
-  f_equal.
-  auto.
-Qed.
+Lemma powE n m : Nat.pow n m = expn n m.
+Proof. by elim: m => //= m ->; rewrite expnS. Qed.
 
-Lemma lem2 : forall (f : nat -> nat) n m x,
-    iter (m * n) f x = iter m (iter n f) x.
-Proof.
-  intros f n m x.
-  induction m as [| m IHm]; auto.
-  simpl.
-  rewrite lem.
-  f_equal.
-  auto.
-Qed.
+Lemma iterE T n :
+  @Nat.iter n T = @iter T n. (* [Nat.iter] coincides with [iter] except the order of arguments *)
+Proof. by []. Qed.
 
-Lemma lem3 : forall (f g : nat -> nat),
-    (forall n, f n = g n) ->
-    forall n x, iter n f x = iter n g x.
-Proof.
-  intros f g H n x.
-  induction n as [| n IHn]; auto.
-  simpl.
-  rewrite H, IHn.
-  reflexivity.
-Qed.
+Lemma iter_mul T n m f (x : T) :
+  iter (n * m) f x = iter n (iter m f) x.
+Proof. by elim: n => // n IH; rewrite mulSn iter_add IH. Qed.
 
 Theorem solution: task.
 Proof.
-  unfold task.
-  intros f n.
-  induction n as [| n IHn]; intros m x; auto.
-  simpl.
-  rewrite lem2.
-  rewrite lem3 with (f := iter (m ^ n) f) (g := iter n (iter m) f); auto.
+unfold task.
+move=> f n m; rewrite !iterE powE; elim: n => //= n IH x.
+by rewrite expnS iter_mul; apply: eq_iter.
 Qed.
